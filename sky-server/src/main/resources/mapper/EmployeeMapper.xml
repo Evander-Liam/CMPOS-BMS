@@ -26,4 +26,19 @@
         </set>
         where id = #{id}
     </update>
+    <select id="select" resultType="com.sky.entity.Employee">
+        select * from employee
+        <where>
+            <if test="id != null">and id = #{id}</if>
+            <if test="name != null">and name like concat('%', #{name}, '%')</if>
+            <if test="username != null">and username = #{username}</if>
+            <if test="password != null">and password = #{password}</if>
+            <if test="phone != null">and phone = #{phone}</if>
+            <if test="sex != null">and sex = #{sex}</if>
+            <if test="idNumber != null">and id_Number = #{idNumber}</if>
+            <if test="updateTime != null">and update_Time = #{updateTime}</if>
+            <if test="updateUser != null">and update_User = #{updateUser}</if>
+            <if test="status != null">and status = #{status}</if>
+        </where>
+    </select>
 </mapper>
