@@ -15,9 +15,10 @@ import java.io.ByteArrayInputStream;
 public class AliOssUtil {
 
     private String endpoint;
+    private String bucketName;
     private String accessKeyId;
     private String accessKeySecret;
-    private String bucketName;
+
 
     /**
      * 文件上传
@@ -52,7 +53,7 @@ public class AliOssUtil {
             }
         }
 
-        //文件访问路径规则 https://BucketName.Endpoint/ObjectName
+        // 文件访问路径规则 https://BucketName.Endpoint/ObjectName
         StringBuilder stringBuilder = new StringBuilder("https://");
         stringBuilder
                 .append(bucketName)
