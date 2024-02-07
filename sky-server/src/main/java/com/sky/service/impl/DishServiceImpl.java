@@ -75,7 +75,7 @@ public class DishServiceImpl implements DishService {
     }
 
     /**
-     * 菜品批量删除
+     * 批量删除菜品
      * @param ids 菜品id
      */
     @Override

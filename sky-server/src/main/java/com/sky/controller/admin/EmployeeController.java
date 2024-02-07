@@ -67,12 +67,12 @@ public class EmployeeController {
     }
 
     /**
-     * 退出
+     * 退出登录
      *
      * @return
      */
     @PostMapping("/logout")
-    @ApiOperation("员工退出")
+    @ApiOperation("退出登录")
     public Result<String> logout() {
         return Result.success();
     }
@@ -107,13 +107,13 @@ public class EmployeeController {
     }
 
     /**
-     * 启用或禁用员工
+     * 菜品起售、停售
      * @param status
      * @param id
      * @return
      */
     @PostMapping("/status/{status}")
-    @ApiOperation("启用或禁用员工")
+    @ApiOperation("菜品起售、停售")
     public Result startOrStop(@PathVariable Integer status, Long id) {
         log.info("对ID为{}进行启用或禁用：{}", id, status);
         employeeService.startOrStop(status, id);
@@ -121,13 +121,13 @@ public class EmployeeController {
     }
 
     /**
-     * 根据ID查询员工
+     * 根据id查询员工
      * @param id
      */
     @GetMapping("/{id}")
-    @ApiOperation("根据ID查询员工")
+    @ApiOperation("根据id查询员工")
     public Result<Employee> getById(@PathVariable Long id) {
-        log.info("根据ID查询员工：{}", id);
+        log.info("根据id查询员工：{}", id);
         Employee employee = employeeService.getById(id);
         return Result.success(employee);
     }

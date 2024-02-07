@@ -54,29 +54,29 @@ public class DishController {
     }
 
     /**
-     * 菜品批量删除
+     * 批量删除菜品
      *
      * @param ids
      * @return
      */
     @DeleteMapping
-    @ApiOperation("菜品批量删除")
+    @ApiOperation("批量删除菜品")
     public Result delete(@RequestParam List<Long> ids) {
-        log.info("菜品批量删除：{}", ids);
+        log.info("批量删除菜品：{}", ids);
         dishService.deleteBatch(ids);
         return Result.success();
     }
 
     /**
-     * 根据Id查询菜品
+     * 根据id查询菜品
      *
      * @param id
      * @return
      */
     @GetMapping("/{id}")
-    @ApiOperation("根据Id查询菜品")
+    @ApiOperation("根据id查询菜品")
     public Result<DishVO> getById(@PathVariable Long id) {
-        log.info("根据Id查询菜品：{}", id);
+        log.info("根据id查询菜品：{}", id);
         DishVO dishVO = dishService.getByIdWithFlavor(id);
         return Result.success(dishVO);
     }
@@ -96,13 +96,13 @@ public class DishController {
     }
 
     /**
-     * 菜品起售或停售
+     * 菜品起售、停售
      * @param status
      * @param id
      * @return
      */
     @PostMapping("/status/{status}")
-    @ApiOperation("菜品起售或停售")
+    @ApiOperation("菜品起售、停售")
     public Result startOrStop(@PathVariable Integer status, Long id) {
         log.info("对菜品Id为{}起售或停售：{}", id, status);
         dishService.startOrStop(status, id);
