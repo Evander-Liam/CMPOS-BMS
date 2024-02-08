@@ -36,6 +36,7 @@ public class SetmealServiceImpl implements SetmealService {
 
     /**
      * 新增套餐，同时保存套餐和菜品的关联关系
+     *
      * @param setmealDTO
      */
     @Override
@@ -61,6 +62,7 @@ public class SetmealServiceImpl implements SetmealService {
 
     /**
      * 套餐分页查询
+     *
      * @param setmealPageQueryDTO
      * @return
      */
@@ -74,6 +76,7 @@ public class SetmealServiceImpl implements SetmealService {
 
     /**
      * 批量删除套餐
+     *
      * @param ids
      */
     @Override
@@ -90,6 +93,54 @@ public class SetmealServiceImpl implements SetmealService {
         // 删除套餐表中的数据
         setmealMapper.deleteBatchByIds(ids);
         // 删除套餐菜品关系表中的数据
-        setmealDishMapper.deleteBatchBySetmealIds(ids);
+        setmealDishMapper.deleteBySetmealIds(ids);
+    }
+
+    /**
+     * 根据id查询套餐和套餐菜品关系
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public SetmealVO getByIdWithDish(Long id) {
+        // 查询套餐
+        Setmeal setmeal = setmealMapper.getById(id);
+        // 查询套餐菜品关系
+        List<SetmealDish> setmealDishes = setmealDishMapper.getBySetmealId(id);
+
+        SetmealVO setmealVO = new SetmealVO();
+        BeanUtils.copyProperties(setmeal, setmealVO);
+        setmealVO.setSetmealDishes(setmealDishes);
+        return setmealVO;
+    }
+
+    /**
+     * 修改套餐及其套餐菜品关系
+     *
+     * @param setmealDTO
+     */
+    @Override
+    @Transactional
+    public void update(SetmealDTO setmealDTO) {
+        Setmeal setmeal = new Setmeal();
+        BeanUtils.copyProperties(setmealDTO, setmeal);
+
+        // 1. 修改套餐
+        setmealMapper.update(setmeal);
+
+        // 获取套餐id和套餐菜品关系
+        Long setmealId = setmealDTO.getId();
+        List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
+
+        // 2. 删除套餐与菜品的关联关系
+        setmealDishMapper.deleteBySetmealId(setmealId);
+
+        // 3. 重新添加套餐与菜品的关联关系
+        // 设置套餐菜品关系的套餐id
+        setmealDishes.forEach(setmealDish -> {
+            setmealDish.setSetmealId(setmealId);
+        });
+        setmealDishMapper.insertBatch(setmealDishes);
     }
 }
