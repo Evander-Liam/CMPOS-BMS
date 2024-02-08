@@ -30,4 +30,10 @@
         </where>
         order by s.create_time desc
     </select>
+    <delete id="deleteBatchByIds" parameterType="java.util.List">
+        delete from setmeal where id in
+        <foreach collection="ids" item="id" open="(" close=")" index=",">
+            #{id}
+        </foreach>
+    </delete>
 </mapper>
