@@ -11,6 +11,9 @@ sky:
     bucket-name: sky-take-out-liam
     access-key-id: LTAI5t9i5bMCrWVpxWUPKWbo
     access-key-secret: 6JFxKc5CgBZgo7LZqpaRErT1fzsf8n
+  wechat:
+    appid: wxe544d70807862d35
+    secret: e41b664f383a73e3071e03a56be49acf
 
 spring:
   redis:
@@ -18,3 +21,4 @@ spring:
     port: 6379
     password: 54U4.8iii
     database: 10
+
