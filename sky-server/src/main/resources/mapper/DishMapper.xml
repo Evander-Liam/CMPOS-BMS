@@ -43,7 +43,7 @@
         </set>
         where id = #{id}
     </update>
-    <select id="select" parameterType="Dish" resultType="Dish">
+    <select id="list" parameterType="Dish" resultType="Dish">
         select * from dish
         <where>
             <if test="id != null">and id = #{id}</if>

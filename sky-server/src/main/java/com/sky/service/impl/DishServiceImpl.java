@@ -4,15 +4,15 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
-import com.sky.entity.Setmeal;
-import com.sky.mapper.SetmealDishMapper;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.DishFlavor;
+import com.sky.entity.Setmeal;
 import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
+import com.sky.mapper.SetmealDishMapper;
 import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
 import com.sky.service.DishService;
@@ -64,6 +64,7 @@ public class DishServiceImpl implements DishService {
 
     /**
      * 菜品分页查询
+     *
      * @param dishPageQueryDTO
      * @return
      */
@@ -76,6 +77,7 @@ public class DishServiceImpl implements DishService {
 
     /**
      * 批量删除菜品
+     *
      * @param ids 菜品id
      */
     @Override
@@ -103,6 +105,7 @@ public class DishServiceImpl implements DishService {
 
     /**
      * 根据Id查询菜品和对应的口味数据
+     *
      * @param id
      * @return
      */
@@ -121,6 +124,7 @@ public class DishServiceImpl implements DishService {
 
     /**
      * 根据id修改菜品基本信息和对应的口味信息
+     *
      * @param dishDTO
      */
     @Override
@@ -145,6 +149,7 @@ public class DishServiceImpl implements DishService {
 
     /**
      * 菜品起售或停售
+     *
      * @param status
      * @param id
      */
@@ -176,6 +181,7 @@ public class DishServiceImpl implements DishService {
 
     /**
      * 根据分类id查询菜品
+     *
      * @param categoryId
      * @return
      */
@@ -185,7 +191,32 @@ public class DishServiceImpl implements DishService {
                 .categoryId(categoryId)
                 .status(StatusConstant.ENABLE)
                 .build();
-        List<Dish> dishes = dishMapper.select(dish);
+        List<Dish> dishes = dishMapper.list(dish);
         return dishes;
+    }
+
+    /**
+     * 条件查询菜品和口味
+     *
+     * @param dish
+     * @return
+     */
+    public List<DishVO> listWithFlavor(Dish dish) {
+        List<Dish> dishList = dishMapper.list(dish);
+
+        List<DishVO> dishVOList = new ArrayList<>();
+
+        for (Dish d : dishList) {
+            DishVO dishVO = new DishVO();
+            BeanUtils.copyProperties(d, dishVO);
+
+            // 根据菜品id查询对应的口味
+            List<DishFlavor> flavors = dishFlavorMapper.getByDishId(d.getId());
+
+            dishVO.setFlavors(flavors);
+            dishVOList.add(dishVO);
+        }
+
+        return dishVOList;
     }
 }
