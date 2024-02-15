@@ -20,6 +20,8 @@ import com.sky.vo.DishItemVO;
 import com.sky.vo.SetmealVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +46,7 @@ public class SetmealServiceImpl implements SetmealService {
      */
     @Override
     @Transactional
+    @CacheEvict(value = "SetmealCache", allEntries = true)
     public void saveWithDish(SetmealDTO setmealDTO) {
         Setmeal setmeal = new Setmeal();
         BeanUtils.copyProperties(setmealDTO, setmeal);
@@ -84,6 +87,7 @@ public class SetmealServiceImpl implements SetmealService {
      */
     @Override
     @Transactional
+    @CacheEvict(value = "SetmealCache", allEntries = true)
     public void deleteBatch(List<Long> ids) {
         // 若当前套餐仍在起售，不能删除
         ids.forEach(id -> {
@@ -125,6 +129,7 @@ public class SetmealServiceImpl implements SetmealService {
      */
     @Override
     @Transactional
+    @CacheEvict(value = "SetmealCache", allEntries = true)
     public void update(SetmealDTO setmealDTO) {
         Setmeal setmeal = new Setmeal();
         BeanUtils.copyProperties(setmealDTO, setmeal);
@@ -154,6 +159,7 @@ public class SetmealServiceImpl implements SetmealService {
      * @param id
      */
     @Override
+    @CacheEvict(value = "SetmealCache", allEntries = true)
     public void startOrStop(Integer status, Long id) {
         // 若停售套餐中包含停售的菜品，则无法起售
         if (status.equals(StatusConstant.ENABLE)) {
