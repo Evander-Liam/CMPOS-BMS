@@ -102,6 +102,18 @@ public class OrderServiceImpl implements OrderService {
      * @return
      */
     @Override
+    public OrderPaymentVO payment(OrdersPaymentDTO ordersPaymentDTO) {
+        OrderPaymentVO vo = OrderPaymentVO.builder()
+                .nonceStr("123")
+                .paySign("Liam")
+                .packageStr("prepay_id=wx")
+                .signType("RSA")
+                .timeStamp("1670380960")
+                .build();
+        return vo;
+    }
+
+    /*
     public OrderPaymentVO payment(OrdersPaymentDTO ordersPaymentDTO) throws Exception {
         // 当前登录用户id
         Long userId = BaseContext.getCurrentId();
@@ -124,6 +136,7 @@ public class OrderServiceImpl implements OrderService {
 
         return vo;
     }
+    */
 
     /**
      * 支付成功，修改订单状态
@@ -145,5 +158,4 @@ public class OrderServiceImpl implements OrderService {
 
         orderMapper.update(orders);
     }
-
 }
