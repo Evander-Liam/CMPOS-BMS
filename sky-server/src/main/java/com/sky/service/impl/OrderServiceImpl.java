@@ -12,6 +12,7 @@ import com.sky.entity.OrderDetail;
 import com.sky.entity.Orders;
 import com.sky.entity.ShoppingCart;
 import com.sky.exception.AddressBookBusinessException;
+import com.sky.exception.OrderBusinessException;
 import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.*;
 import com.sky.result.PageResult;
@@ -25,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -217,5 +219,47 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return orderVO;
+    }
+
+    /**
+     * 取消订单
+     *
+     * @param id
+     */
+    @Override
+    @Transactional
+    public void userCancelById(Long id) throws Exception {
+        // 根据Id查询订单，并处理业务异常
+        // 判订单是否存在
+        Orders order = orderMapper.getById(id);
+        if (order == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+
+        // 判当前订单状态是否可取消，仅“代付款”、“待接单”可取消
+        // 订单状态 1待付款 2待接单 3已接单 4派送中 5已完成 6已取消
+        if (order.getStatus() > 2) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        // 若当前订单已待接单，则需退款
+        if (order.getStatus().equals(Orders.PAID)) {
+            /*
+            weChatPayUtil.refund(
+                    order.getNumber(), // 商户订单号
+                    order.getNumber(), // 商户退款单号
+                    new BigDecimal(0.01),// 退款金额，单位 元
+                    new BigDecimal(0.01));// 原订单金额
+            */
+
+            // 支付状态修改为 退款
+            order.setPayStatus(Orders.REFUND);
+        }
+
+        // 更新订单状态、取消原因、取消时间
+        order.setStatus(Orders.CANCELLED);
+        order.setCancelReason("用户取消");
+        order.setCancelTime(LocalDateTime.now());
+        orderMapper.update(order);
     }
 }
