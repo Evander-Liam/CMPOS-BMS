@@ -7,7 +7,10 @@ import com.sky.context.BaseContext;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
-import com.sky.entity.*;
+import com.sky.entity.AddressBook;
+import com.sky.entity.OrderDetail;
+import com.sky.entity.Orders;
+import com.sky.entity.ShoppingCart;
 import com.sky.exception.AddressBookBusinessException;
 import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.*;
@@ -162,6 +165,7 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * 历史订单查询
+     *
      * @param ordersPageQueryDTO
      * @return
      */
@@ -190,5 +194,28 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return new PageResult(orders.getTotal(), orderVOS);
+    }
+
+    /**
+     * 查询订单详情
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public OrderVO details(Long id) {
+        OrderVO orderVO = new OrderVO();
+
+        // 根据id查询订单
+        Orders order = orderMapper.getById(id);
+
+        // 根据订单id查询订单详情，并封装至OrderVO
+        if (order != null) {
+            BeanUtils.copyProperties(order, orderVO);
+            List<OrderDetail> orderDetails = orderDetailMapper.getByOrderId(order.getId());
+            orderVO.setOrderDetailList(orderDetails);
+        }
+
+        return orderVO;
     }
 }
