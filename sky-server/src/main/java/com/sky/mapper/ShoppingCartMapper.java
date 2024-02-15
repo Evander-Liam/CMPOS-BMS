@@ -13,4 +13,16 @@ public interface ShoppingCartMapper {
      * @return
      */
     List<ShoppingCart> list(ShoppingCart shoppingCart);
+
+    /**
+     * 更新商品
+     * @param shoppingCart
+     */
+    void update(ShoppingCart shoppingCart);
+
+    /**
+     * 插入商品
+     * @param shoppingCart
+     */
+    void insert(ShoppingCart shoppingCart);
 }

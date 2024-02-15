@@ -20,4 +20,24 @@
         </where>
         order by create_time desc
     </select>
+    <update id="update" parameterType="com.sky.entity.ShoppingCart">
+        UPDATE shopping_cart
+        <set>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="dishId != null">dish_id = #{dishId},</if>
+            <if test="setmealId != null">setmeal_id = #{setmealId},</if>
+            <if test="dishFlavor != null and dishFlavor != ''">dish_flavor = #{dishFlavor},</if>
+            <if test="number != null">number = #{number},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="image != null and image != ''">image = #{image},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    <insert id="insert">
+        insert into shopping_cart (name, user_id, dish_id, setmeal_id, dish_flavor, number, amount, image, create_time)
+        values (#{name}, #{userId}, #{dishId}, #{setmealId}, #{dishFlavor}, #{number}, #{amount}, #{image},
+                #{createTime})
+    </insert>
 </mapper>
