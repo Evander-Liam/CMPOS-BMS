@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -240,6 +241,7 @@ public class OrderServiceImpl implements OrderService {
 
         // 若当前订单已待接单，则需退款
         if (order.getStatus().equals(Orders.PAID)) {
+            // 模拟退款成功，跳过微信退款过程
             /*
             weChatPayUtil.refund(
                     order.getNumber(), // 商户订单号
@@ -257,5 +259,32 @@ public class OrderServiceImpl implements OrderService {
         order.setCancelReason("用户取消");
         order.setCancelTime(LocalDateTime.now());
         orderMapper.update(order);
+    }
+
+    /**
+     * 再来一单
+     * @param id
+     */
+    @Override
+    public void repetition(Long id) {
+        // 查询当前用户id
+        Long userId = BaseContext.getCurrentId();
+
+        // 根据订单id查询订单明细
+        List<OrderDetail> orderDetails = orderDetailMapper.getByOrderId(id);
+
+        // 将订单明细转换为购物车对象
+        List<ShoppingCart> shoppingCarts = new ArrayList<>();
+        for (OrderDetail orderDetail : orderDetails) {
+            ShoppingCart shoppingCart = new ShoppingCart();
+            BeanUtils.copyProperties(orderDetail, shoppingCart, "id");
+            shoppingCart.setUserId(userId);
+            shoppingCart.setCreateTime(LocalDateTime.now());
+
+            shoppingCarts.add(shoppingCart);
+        }
+
+        // 批量添加购物车对象
+        shoppingCartMapper.insertBatch(shoppingCarts);
     }
 }
