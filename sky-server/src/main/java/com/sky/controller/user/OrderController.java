@@ -33,6 +33,11 @@ public class OrderController {
     public Result<OrderSubmitVO> submit(@RequestBody OrdersSubmitDTO ordersSubmitDTO) {
         log.info("用户下单：{}", ordersSubmitDTO);
         OrderSubmitVO orderSubmitVO = orderService.submitOrder(ordersSubmitDTO);
+
+        // 模拟订单交易成功
+        log.info("模拟订单支付：{}", orderSubmitVO.getOrderNumber());
+        orderService.paySuccess(orderSubmitVO.getOrderNumber());
+
         return Result.success(orderSubmitVO);
     }
 
