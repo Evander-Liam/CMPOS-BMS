@@ -453,6 +453,7 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * 派送订单
+     *
      * @param id
      */
     @Override
@@ -472,6 +473,33 @@ public class OrderServiceImpl implements OrderService {
 
         // 更新订单
         order.setStatus(Orders.DELIVERY_IN_PROGRESS);
+
+        orderMapper.update(order);
+    }
+
+    /**
+     * 完成订单
+     *
+     * @param id
+     */
+    @Override
+    public void complete(Long id) {
+        // 查询当前订单，处理业务异常
+        Orders order = orderMapper.getById(id);
+
+        // 判订单不存在
+        if (order == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+
+        // 判订单状态为“派送中”
+        if (!order.getStatus().equals(Orders.DELIVERY_IN_PROGRESS)) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        // 更新订单
+        order.setStatus(Orders.COMPLETED);
+        order.setDeliveryTime(LocalDateTime.now());
 
         orderMapper.update(order);
     }
