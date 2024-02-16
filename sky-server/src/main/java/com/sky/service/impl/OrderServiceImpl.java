@@ -366,10 +366,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public void confirm(OrdersConfirmDTO ordersConfirmDTO) {
-        Orders order = Orders.builder()
-                .id(ordersConfirmDTO.getId())
-                .status(Orders.CONFIRMED)
-                .build();
+        Orders order = Orders.builder().id(ordersConfirmDTO.getId()).status(Orders.CONFIRMED).build();
 
         orderMapper.update(order);
     }
@@ -396,14 +393,52 @@ public class OrderServiceImpl implements OrderService {
 
         // 若用户已支付，则需退款
         if (order.getPayStatus().equals(Orders.PAID)) {
-            /* 模拟退款成功，跳过微信退款流程
+            /*
+            // 模拟退款成功，跳过微信退款流程
             String refund = weChatPayUtil.refund(
                     order.getNumber(),
                     order.getNumber(),
                     new BigDecimal(0.01),
                     new BigDecimal(0.01));
-             log.info("申请退款：{}", refund);
-             */
+            log.info("申请退款：{}", refund);
+            */
+
+            order.setPayStatus(Orders.REFUND);
+        }
+        // 更新订单
+        order.setStatus(Orders.CANCELLED);
+        order.setCancelTime(LocalDateTime.now());
+        order.setRejectionReason(ordersRejectionDTO.getRejectionReason());
+
+        orderMapper.update(order);
+    }
+
+    /**
+     * 商家取消订单
+     *
+     * @param ordersCancelDTO
+     */
+    @Override
+    public void cancel(OrdersCancelDTO ordersCancelDTO) throws Exception {
+        // 查询当前订单，处理业务异常
+        Orders order = orderMapper.getById(ordersCancelDTO.getId());
+
+        // 判订单不存在
+        if (order == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+
+        // 若用户已支付，则需退款
+        if (order.getPayStatus().equals(Orders.PAID)) {
+            /*
+            // 模拟退款成功，跳过微信退款流程
+            String refund = weChatPayUtil.refund(
+                    order.getNumber(),
+                    order.getNumber(),
+                    new BigDecimal(0.01),
+                    new BigDecimal(0.01));
+            log.info("申请退款：{}", refund);
+            */
 
             order.setPayStatus(Orders.REFUND);
         }
@@ -411,7 +446,7 @@ public class OrderServiceImpl implements OrderService {
         // 更新订单
         order.setStatus(Orders.CANCELLED);
         order.setCancelTime(LocalDateTime.now());
-        order.setRejectionReason(ordersRejectionDTO.getRejectionReason());
+        order.setCancelReason(ordersCancelDTO.getCancelReason());
 
         orderMapper.update(order);
     }
