@@ -450,4 +450,29 @@ public class OrderServiceImpl implements OrderService {
 
         orderMapper.update(order);
     }
+
+    /**
+     * 派送订单
+     * @param id
+     */
+    @Override
+    public void delivery(Long id) {
+        // 查询当前订单，处理业务异常
+        Orders order = orderMapper.getById(id);
+
+        // 判订单不存在
+        if (order == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+
+        // 判订单状态为“已接单”
+        if (!order.getStatus().equals(Orders.CONFIRMED)) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        // 更新订单
+        order.setStatus(Orders.DELIVERY_IN_PROGRESS);
+
+        orderMapper.update(order);
+    }
 }
