@@ -405,8 +405,7 @@ public class OrderServiceImpl implements OrderService {
              log.info("申请退款：{}", refund);
              */
 
-            // todo 是否应该在此处设置订单支付状态为已退款
-            // order.setPayStatus(Orders.REFUND);
+            order.setPayStatus(Orders.REFUND);
         }
 
         // 更新订单
