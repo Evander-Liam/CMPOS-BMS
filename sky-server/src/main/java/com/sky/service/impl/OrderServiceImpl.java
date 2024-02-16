@@ -227,8 +227,8 @@ public class OrderServiceImpl implements OrderService {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         }
 
-        // 若当前订单已待接单，则需退款
-        if (order.getStatus().equals(Orders.PAID)) {
+        // 若用户已支付，则需退款
+        if (order.getPayStatus().equals(Orders.PAID)) {
             // 模拟退款成功，跳过微信退款过程
             /*
             weChatPayUtil.refund(
