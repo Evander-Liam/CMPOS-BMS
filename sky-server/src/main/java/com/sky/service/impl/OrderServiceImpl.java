@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -175,22 +174,10 @@ public class OrderServiceImpl implements OrderService {
 
         // 查询当前用户、当前状态下的订单数据
         ordersPageQueryDTO.setUserId(BaseContext.getCurrentId());
-        Page<Orders> orders = orderMapper.pageQuery(ordersPageQueryDTO.getStatus());
+        Page<Orders> orders = orderMapper.pageQuery(ordersPageQueryDTO);
 
         // 查询订单明细，并封装至OrderVO
-        List<OrderVO> orderVOS = new ArrayList<>();
-        if (orders != null && !orders.isEmpty()) {
-            for (Orders order : orders) {
-                // 查询订单明细
-                List<OrderDetail> orderDetails = orderDetailMapper.getByOrderId(order.getId());
-
-                OrderVO orderVO = new OrderVO();
-                BeanUtils.copyProperties(order, orderVO);
-                orderVO.setOrderDetailList(orderDetails);
-
-                orderVOS.add(orderVO);
-            }
-        }
+        List<OrderVO> orderVOS = getOrderVOS(orders, false);
 
         return new PageResult(orders.getTotal(), orderVOS);
     }
@@ -263,6 +250,7 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * 再来一单
+     *
      * @param id
      */
     @Override
@@ -286,5 +274,68 @@ public class OrderServiceImpl implements OrderService {
 
         // 批量添加购物车对象
         shoppingCartMapper.insertBatch(shoppingCarts);
+    }
+
+    /**
+     * 订单搜索
+     *
+     * @param ordersPageQueryDTO
+     * @return
+     */
+    @Override
+    public PageResult pageQuery4Admin(OrdersPageQueryDTO ordersPageQueryDTO) {
+        // 设置分页
+        PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
+
+        // 查询当前用户、当前状态下的订单数据
+        Page<Orders> orders = orderMapper.pageQuery(ordersPageQueryDTO);
+
+        // 查询订单明细，并封装至OrderVO
+        List<OrderVO> orderVOS = getOrderVOS(orders, true);
+
+        return new PageResult(orders.getTotal(), orderVOS);
+    }
+
+    /**
+     * 根据分页查询结果，获取订单明细，并封装List<OrderVO>
+     *
+     * @param orders
+     * @param isAdmin
+     * @return
+     */
+    private List<OrderVO> getOrderVOS(Page<Orders> orders, boolean isAdmin) {
+        List<OrderVO> orderVOS = new ArrayList<>();
+        if (orders != null && !orders.isEmpty()) {
+            for (Orders order : orders) {
+                // 查询订单明细
+                List<OrderDetail> orderDetails = orderDetailMapper.getByOrderId(order.getId());
+
+                OrderVO orderVO = new OrderVO();
+                BeanUtils.copyProperties(order, orderVO);
+                orderVO.setOrderDetailList(orderDetails);
+
+                // 若是管理端查询，则需完善订单菜品信息
+                if (isAdmin) {
+                    orderVO.setOrderDishes(getOrderDishes(orderDetails));
+                }
+
+                orderVOS.add(orderVO);
+            }
+        }
+        return orderVOS;
+    }
+
+    /**
+     * 拼接订单菜品信息，如：宫保鸡丁*3；鱼香豆腐*2；
+     *
+     * @param orderDetails
+     * @return
+     */
+    private String getOrderDishes(List<OrderDetail> orderDetails) {
+        StringBuilder orderDishes = new StringBuilder();
+        for (OrderDetail orderDetail : orderDetails) {
+            orderDishes.append(orderDetail.getName() + "*" + orderDetail.getNumber() + "；");
+        }
+        return orderDishes.toString();
     }
 }
