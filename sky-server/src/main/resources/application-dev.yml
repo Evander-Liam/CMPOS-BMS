@@ -21,6 +21,11 @@ sky:
     weChatPayCertFilePath:  # D:\wechatpay_166D96F876F45C7D07CE98952A96EC980368ACFC.pem
     notifyUrl: https://www.weixin.qq.com/wxpay/pay.php
     refundNotifyUrl: https://www.weixin.qq.com/wxpay/pay.php
+  baidu:
+    shop:
+      address: 北京市市辖区西城区新文化街甲47号
+      ak: bpLbXmtGVDtfkc2T3NclFnAs3wLt02oP
+      output: json
 
 spring:
   redis:

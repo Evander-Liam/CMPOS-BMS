@@ -13,6 +13,7 @@ import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.*;
 import com.sky.result.PageResult;
 import com.sky.service.OrderService;
+import com.sky.utils.BaiduGeocodingUtil;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
@@ -40,9 +41,11 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderDetailMapper orderDetailMapper;
     @Autowired
-    UserMapper userMapper;
+    private UserMapper userMapper;
     @Autowired
-    WeChatPayUtil weChatPayUtil;
+    private WeChatPayUtil weChatPayUtil;
+    @Autowired
+    private BaiduGeocodingUtil baiduGeocodingUtil;
 
 
     /**
@@ -68,6 +71,12 @@ public class OrderServiceImpl implements OrderService {
         List<ShoppingCart> shoppingCarts = shoppingCartMapper.list(shoppingCart);
         if (shoppingCarts == null || shoppingCarts.isEmpty()) {
             throw new ShoppingCartBusinessException(MessageConstant.SHOPPING_CART_IS_NULL);
+        }
+
+        // 判 用户的收货地址 距离 商家门店 超出配送范围
+        Integer distance = baiduGeocodingUtil.getDistance(addressBook.getDetail());
+        if (distance > 5000) {
+            throw new OrderBusinessException("超出配送范围");
         }
 
         // 2. 构造订单数据
