@@ -19,6 +19,7 @@ import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -46,6 +49,8 @@ public class OrderServiceImpl implements OrderService {
     private WeChatPayUtil weChatPayUtil;
     @Autowired
     private BaiduGeocodingUtil baiduGeocodingUtil;
+    @Autowired
+    private WebSocketServer webSocketServer;
 
 
     /**
@@ -142,18 +147,6 @@ public class OrderServiceImpl implements OrderService {
 
         return vo;
     }
-    /*
-    public OrderPaymentVO payment(OrdersPaymentDTO ordersPaymentDTO) {
-        OrderPaymentVO vo = OrderPaymentVO.builder()
-                .nonceStr("123")
-                .paySign("Liam")
-                .packageStr("prepay_id=wx")
-                .signType("RSA")
-                .timeStamp("1670380960")
-                .build();
-        return vo;
-    }
-    */
 
     /**
      * 支付成功，修改订单状态
@@ -166,9 +159,22 @@ public class OrderServiceImpl implements OrderService {
         Orders ordersDB = orderMapper.getByNumber(outTradeNo);
 
         // 根据订单id更新订单的状态、支付方式、支付状态、结账时间
-        Orders orders = Orders.builder().id(ordersDB.getId()).status(Orders.TO_BE_CONFIRMED).payStatus(Orders.PAID).checkoutTime(LocalDateTime.now()).build();
+        Orders order = Orders.builder()
+                .id(ordersDB.getId())
+                .status(Orders.TO_BE_CONFIRMED)
+                .payStatus(Orders.PAID)
+                .checkoutTime(LocalDateTime.now())
+                .build();
 
-        orderMapper.update(orders);
+        orderMapper.update(order);
+
+        // 通过WebSocket实现来单提醒，向客户端浏览器推送消息
+        Map<Object, Object> paramMap = new HashMap<>();
+        paramMap.put("type", 1);
+        paramMap.put("orderId", order.getId());
+        paramMap.put("content", "订单号：" + outTradeNo);
+
+        webSocketServer.sendToAllClient(JSONObject.toJSONString(paramMap));
     }
 
     /**
