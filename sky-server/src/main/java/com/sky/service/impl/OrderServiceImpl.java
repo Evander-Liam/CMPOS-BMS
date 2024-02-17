@@ -170,7 +170,7 @@ public class OrderServiceImpl implements OrderService {
 
         // 通过WebSocket实现来单提醒，向客户端浏览器推送消息
         Map<Object, Object> paramMap = new HashMap<>();
-        paramMap.put("type", 1);
+        paramMap.put("type", 1);// "1"表示来单提醒，"2"表示客户催单
         paramMap.put("orderId", order.getId());
         paramMap.put("content", "订单号：" + outTradeNo);
 
@@ -517,5 +517,26 @@ public class OrderServiceImpl implements OrderService {
         order.setDeliveryTime(LocalDateTime.now());
 
         orderMapper.update(order);
+    }
+
+    /**
+     * 客户催单
+     * @param id
+     */
+    @Override
+    public void reminder(Long id) {
+        Orders order = orderMapper.getById(id);
+
+        if (order == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+
+        // 基于WebSocket进行催单
+        Map<Object, Object> paramMap = new HashMap<>();
+        paramMap.put("type", 2);// "1"表示来单提醒，"2"表示客户催单
+        paramMap.put("orderId", id);
+        paramMap.put("content", "订单号：" + order.getNumber());
+
+        webSocketServer.sendToAllClient(JSONObject.toJSONString(paramMap));
     }
 }
