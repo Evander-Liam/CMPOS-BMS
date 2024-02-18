@@ -66,4 +66,19 @@
         </where>
         order by order_time desc
     </select>
+
+    <select id="sumByMap" resultType="java.math.BigDecimal">
+        select IFNULL(sum(amount), 0.0) from orders
+        <where>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="beginTime != null">
+                and #{beginTime} &lt; order_time
+            </if>
+            <if test="endTime != null">
+                and #{endTime} &gt; order_time
+            </if>
+        </where>
+    </select>
 </mapper>
