@@ -8,7 +8,7 @@
     </insert>
 
     <select id="countByMap" resultType="java.lang.Integer">
-        select IFNULL(count(distinct id), 0) from user
+        select IFNULL(count(id), 0) from user
         <where>
             <if test="beginTime != null">
                 and #{beginTime} &lt; create_time

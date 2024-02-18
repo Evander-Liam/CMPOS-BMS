@@ -68,7 +68,22 @@
     </select>
 
     <select id="sumByMap" resultType="java.math.BigDecimal">
-        select IFNULL(sum(amount), 0.0) from orders
+        select ifnull(sum(amount), 0.0) from orders
+        <where>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="beginTime != null">
+                and #{beginTime} &lt; order_time
+            </if>
+            <if test="endTime != null">
+                and #{endTime} &gt; order_time
+            </if>
+        </where>
+    </select>
+
+    <select id="countByMap" resultType="java.lang.Integer">
+        select ifnull(count(id), 0) from orders
         <where>
             <if test="status != null">
                 and status = #{status}

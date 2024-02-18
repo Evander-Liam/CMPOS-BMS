@@ -78,4 +78,11 @@ public interface OrderMapper {
      * @return
      */
     BigDecimal sumByMap(Map<Object, Object> paramMap);
+
+    /**
+     * 根据订单状态和下单时间统计订单数
+     * @param paramMap
+     * @return
+     */
+    Integer countByMap(Map<Object, Object> paramMap);
 }
