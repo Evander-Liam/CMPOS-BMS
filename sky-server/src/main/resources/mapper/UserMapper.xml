@@ -6,4 +6,16 @@
         insert into user (openid, name, phone, sex, id_number, avatar, create_time)
         values (#{openid}, #{name}, #{phone}, #{sex}, #{idNumber}, #{avatar}, #{createTime})
     </insert>
+
+    <select id="countByMap" resultType="java.lang.Integer">
+        select IFNULL(count(distinct id), 0) from user
+        <where>
+            <if test="beginTime != null">
+                and #{beginTime} &lt; create_time
+            </if>
+            <if test="endTime != null">
+                and #{endTime} &gt; create_time
+            </if>
+        </where>
+    </select>
 </mapper>
