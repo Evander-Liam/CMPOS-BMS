@@ -58,10 +58,10 @@
                 and status = #{status}
             </if>
             <if test="beginTime != null">
-                and order_time &gt;= #{beginTime}
+                and order_time &gt;== #{beginTime}
             </if>
             <if test="endTime != null">
-                and order_time &lt;= #{endTime}
+                and order_time &lt;== #{endTime}
             </if>
         </where>
         order by order_time desc
@@ -74,10 +74,10 @@
                 and status = #{status}
             </if>
             <if test="beginTime != null">
-                and #{beginTime} &lt; order_time
+                and #{beginTime} &lt;= order_time
             </if>
             <if test="endTime != null">
-                and #{endTime} &gt; order_time
+                and #{endTime} &gt;= order_time
             </if>
         </where>
     </select>
@@ -89,11 +89,27 @@
                 and status = #{status}
             </if>
             <if test="beginTime != null">
-                and #{beginTime} &lt; order_time
+                and #{beginTime} &lt;= order_time
             </if>
             <if test="endTime != null">
-                and #{endTime} &gt; order_time
+                and #{endTime} &gt;= order_time
             </if>
         </where>
+    </select>
+
+    <select id="getSalesTop10" resultType="com.sky.dto.GoodsSalesDTO">
+        select od.name as name, sum(od.number) as number
+        from orders o
+        join order_detail od on o.id = od.order_id
+        and o.status = 5
+        <if test="beginTime != null">
+            and #{beginTime} &lt;= order_time
+        </if>
+        <if test="endTime != null">
+            and #{endTime} &gt;= order_time
+        </if>
+        group by name
+        order by number desc
+        limit 0, 10
     </select>
 </mapper>
