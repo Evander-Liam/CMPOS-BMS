@@ -32,31 +32,69 @@
     <update id="update">
         update dish
         <set>
-            <if test="name != null">name = #{name},</if>
-            <if test="categoryId != null">category_id = #{categoryId},</if>
-            <if test="price != null">price = #{price},</if>
-            <if test="image != null">image = #{image},</if>
-            <if test="description != null">description = #{description},</if>
-            <if test="status != null">status = #{status},</if>
-            <if test="updateTime != null">update_time = #{updateTime},</if>
-            <if test="updateUser != null">update_user = #{updateUser},</if>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="categoryId != null">
+                category_id = #{categoryId},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="image != null">
+                image = #{image},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="updateUser != null">
+                update_user = #{updateUser},
+            </if>
         </set>
         where id = #{id}
     </update>
     <select id="list" parameterType="Dish" resultType="Dish">
         select * from dish
         <where>
-            <if test="id != null">and id = #{id}</if>
-            <if test="name != null and name != ''">and name = #{name}</if>
-            <if test="categoryId != null">and category_id = #{categoryId}</if>
-            <if test="price != null">and price = #{price}</if>
-            <if test="image != null and image != ''">and image = #{image}</if>
-            <if test="description != null and description != ''">and description = #{description}</if>
-            <if test="status != null">and status = #{status}</if>
-            <if test="createTime != null">and create_time = #{createTime}</if>
-            <if test="updateTime != null">and update_time = #{updateTime}</if>
-            <if test="createUser != null">and create_user = #{createUser}</if>
-            <if test="updateUser != null">and update_user = #{updateUser}</if>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="categoryId != null">
+                and category_id = #{categoryId}
+            </if>
+            <if test="price != null">
+                and price = #{price}
+            </if>
+            <if test="image != null and image != ''">
+                and image = #{image}
+            </if>
+            <if test="description != null and description != ''">
+                and description = #{description}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+            <if test="createUser != null">
+                and create_user = #{createUser}
+            </if>
+            <if test="updateUser != null">
+                and update_user = #{updateUser}
+            </if>
         </where>
         order by create_time desc;
     </select>
@@ -65,5 +103,16 @@
         from dish d
                  left join setmeal_dish sd on d.id = sd.dish_id
         where sd.setmeal_id = #{setmeal_id};
+    </select>
+    <select id="countByMap" resultType="java.lang.Integer">
+        select count(id) from dish
+        <where>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="categoryId != null">
+                and category_id = #{categoryId}
+            </if>
+        </where>
     </select>
 </mapper>

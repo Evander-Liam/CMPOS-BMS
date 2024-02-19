@@ -58,16 +58,16 @@
                 and status = #{status}
             </if>
             <if test="beginTime != null">
-                and order_time &gt;== #{beginTime}
+                and order_time &gt;= #{beginTime}
             </if>
             <if test="endTime != null">
-                and order_time &lt;== #{endTime}
+                and order_time &lt;= #{endTime}
             </if>
         </where>
         order by order_time desc
     </select>
 
-    <select id="sumByMap" resultType="java.math.BigDecimal">
+    <select id="sumByMap" resultType="java.lang.Double">
         select ifnull(sum(amount), 0.0) from orders
         <where>
             <if test="status != null">

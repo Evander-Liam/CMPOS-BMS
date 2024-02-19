@@ -7,7 +7,6 @@ import com.sky.entity.Orders;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +77,7 @@ public interface OrderMapper {
      * @param paramMap
      * @return
      */
-    BigDecimal sumByMap(Map<Object, Object> paramMap);
+    Double sumByMap(Map<Object, Object> paramMap);
 
     /**
      * 根据订单状态和下单时间统计订单数

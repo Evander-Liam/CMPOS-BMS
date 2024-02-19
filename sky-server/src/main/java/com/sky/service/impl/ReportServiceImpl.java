@@ -41,7 +41,7 @@ public class ReportServiceImpl implements ReportService {
     public TurnoverReportVO getTurnoverStatistics(LocalDate begin, LocalDate end) {
         // 日期与营业额
         List<LocalDate> dateList = new ArrayList<>();
-        List<BigDecimal> turnoverList = new ArrayList<>();
+        List<Double> turnoverList = new ArrayList<>();
 
         for (LocalDate curr = begin; !curr.isAfter(end); curr = curr.plusDays(1)) {
             // 数据库下单时间为datetime，所以Java需将LocalDate进行转型为LocalDateTime来传入
@@ -53,7 +53,7 @@ public class ReportServiceImpl implements ReportService {
             paramMap.put("beginTime", beginTime);
             paramMap.put("endTime", endTime);
 
-            BigDecimal turnover = orderMapper.sumByMap(paramMap);
+            Double turnover = orderMapper.sumByMap(paramMap);
 
             dateList.add(curr);
             turnoverList.add(turnover);
