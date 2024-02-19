@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.time.LocalDate;
 
 @RestController
@@ -88,4 +90,16 @@ public class ReportController {
         SalesTop10ReportVO salesTop10ReportVO = reportService.getSalesTop10(begin, end);
         return Result.success(salesTop10ReportVO);
     }
+
+    /**
+     * 导出Excel运营数据报表
+     * @param response
+     */
+    @GetMapping("/export")
+    @ApiOperation("导出Excel报表")
+    public void export(HttpServletResponse response) throws IOException {
+        log.info("导出Excel运营数据报表");
+        reportService.exportBusinessData(response);
+    }
+
 }
