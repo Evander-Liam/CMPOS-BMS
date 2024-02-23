@@ -31,6 +31,8 @@
         <jjwt>0.9.1</jjwt>
         <jaxb-api>2.3.1</jaxb-api>
         <poi>3.16</poi>
+        <wechatpay-apache-httpclient>0.4.8</wechatpay-apache-httpclient>
+        <guava>33.0.0-jre</guava>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -121,7 +123,13 @@
             <dependency>
                 <groupId>com.github.wechatpay-apiv3</groupId>
                 <artifactId>wechatpay-apache-httpclient</artifactId>
-                <version>0.4.8</version>
+                <version>${wechatpay-apache-httpclient}</version>
+            </dependency>
+            <!-- BloomFilter -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

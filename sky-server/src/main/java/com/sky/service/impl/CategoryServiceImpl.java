@@ -2,6 +2,7 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.google.common.hash.BloomFilter;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
@@ -34,6 +35,8 @@ public class CategoryServiceImpl implements CategoryService {
     private DishMapper dishMapper;
     @Autowired
     private SetmealMapper setmealMapper;
+    @Autowired
+    private BloomFilter bloomFilter;
 
     /**
      * 新增分类
@@ -55,6 +58,10 @@ public class CategoryServiceImpl implements CategoryService {
         // category.setUpdateUser(BaseContext.getCurrentId());
 
         categoryMapper.insert(category);
+
+        // 更新布隆过滤器
+        bloomFilter.put("DishCache::" + category.getId());
+        bloomFilter.put("SetmealCache::" + category.getId());
     }
 
     /**
