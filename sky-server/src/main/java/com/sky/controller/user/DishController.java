@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,23 +44,44 @@ public class DishController {
     // @Cacheable(value = "DishCache", key = "#categoryId")
     public Result<List<DishVO>> list(Long categoryId) {
         String key = "DishCache::" + categoryId;
+        String keyMutex = "DishCache::KeyMutex:" + categoryId;
 
-        // 判断菜品是否存在
+        // 使用布隆过滤器判断菜品是否存在，以减少不必要的数据库查询和缓存操作
         if (!bloomFilter.mightContain(key)) {
             throw new ListFailedException(MessageConstant.DISH_NOT_FOUND);
         }
 
-        Result<List<DishVO>> result = (Result<List<DishVO>>) redisTemplate.opsForValue().get(key);
-
+        // 查询缓存是否存在菜品，若存在，则直接返回缓存的结果
+        ValueOperations opsForValue = redisTemplate.opsForValue();
+        Result<List<DishVO>> result = (Result<List<DishVO>>) opsForValue.get(key);
         if (result != null) return result;
 
-        Dish dish = new Dish();
-        dish.setCategoryId(categoryId);
-        dish.setStatus(StatusConstant.ENABLE);// 查询起售中的菜品
+        // 先获取分布式锁，再查询数据库
+        // 设置一分钟的超时，防止下次缓存一直不能加载数据库，若释放分布式锁失败
+        if (opsForValue.setIfAbsent(keyMutex, 1, 1, TimeUnit.MINUTES)) {
+            // 查询数据库
+            Dish dish = new Dish();
+            dish.setCategoryId(categoryId);
+            dish.setStatus(StatusConstant.ENABLE);// 查询起售中的菜品
 
-        List<DishVO> list = dishService.listWithFlavor(dish);
-        result = Result.success(list);
-        redisTemplate.opsForValue().set(key, result, 1, TimeUnit.HOURS);
+            List<DishVO> list = dishService.listWithFlavor(dish);
+            result = Result.success(list);
+
+            // 设置缓存
+            opsForValue.set(key, result, 1, TimeUnit.HOURS);
+
+            // 释放分布式锁，以便其他线程可以获取锁并访问数据库和缓存
+            redisTemplate.delete(keyMutex);
+        } else {
+            // 其他线程已经加载数据库并回设缓存，此时只需等待和重试
+            try {
+                // todo 短时间内可能连续多次尝试获取分布式锁失败，需要考虑使用循环而不是递归来重试获取分布式锁。
+                Thread.sleep(50);
+                result = list(categoryId);
+            } catch (InterruptedException e) {
+                log.error(e.getMessage());
+            }
+        }
 
         return result;
     }
