@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @RestController("userDishController")
@@ -46,7 +47,7 @@ public class DishController {
         String key = "DishCache::" + categoryId;
         String keyMutex = "DishCache::KeyMutex:" + categoryId;
 
-        // 使用布隆过滤器判断菜品是否存在，以减少不必要的数据库查询和缓存操作
+        // 使用布隆过滤器判断菜品是否存在，以防止缓存击穿
         if (!bloomFilter.mightContain(key)) {
             throw new ListFailedException(MessageConstant.DISH_NOT_FOUND);
         }
@@ -56,7 +57,7 @@ public class DishController {
         Result<List<DishVO>> result = (Result<List<DishVO>>) opsForValue.get(key);
         if (result != null) return result;
 
-        // 先获取分布式锁，再查询数据库
+        // 先获取分布式锁，再查询数据库，以防止缓存穿透
         // 设置一分钟的超时，防止下次缓存一直不能加载数据库，若释放分布式锁失败
         if (opsForValue.setIfAbsent(keyMutex, 1, 1, TimeUnit.MINUTES)) {
             // 查询数据库
@@ -67,8 +68,10 @@ public class DishController {
             List<DishVO> list = dishService.listWithFlavor(dish);
             result = Result.success(list);
 
-            // 设置缓存
-            opsForValue.set(key, result, 1, TimeUnit.HOURS);
+            // 设置过期时间为一小时到两小时的缓存，以防止缓存雪崩
+            Random random = new Random();
+            long expiration = 60L + random.nextInt(60);
+            opsForValue.set(key, result, expiration, TimeUnit.MINUTES);
 
             // 释放分布式锁，以便其他线程可以获取锁并访问数据库和缓存
             redisTemplate.delete(keyMutex);
