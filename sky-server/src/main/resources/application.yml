@@ -20,8 +20,8 @@ spring:
 
 # 布隆过滤器配置
 bloom-filter:
-  expected-insertions: 1000000  # 期望插入的元素数量
-  fpp: 0.01  # 误判率
+  expectedInsertions: 1000000  # 期望插入的元素数量
+  falsePositiveProbability: 0.01  # 误判率
 
 mybatis:
   #mapper配置文件
